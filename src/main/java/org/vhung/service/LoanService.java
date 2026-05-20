@@ -40,20 +40,23 @@ public class LoanService {
 
     }
     //lấy danh sách tất cả tài khoản vay đang chờ phê duyệt
-    public List<LoanRequest> getALlLoanRequestPending(){
-        List<LoanRequest> loanRequestList = loanDao.getAllLoanRequestPending();
-
-        if(loanRequestList == null || loanRequestList.size()==0){
-            throw new RuntimeException("Hiện tại không có khoản vay nào đang chờ phê duyệt");
-        }
-        return loanRequestList;
-
+    public List<LoanRequest> getAllLoanRequestPending() throws RuntimeException{
+         List<LoanRequest> loanRequestList = loanDao.getAllLoanRequestPending();
+         if(loanRequestList.isEmpty()){
+             throw new RuntimeException("Danh sách đang trống");
+         }
+         return loanRequestList;
     }
+
+    public LoanRequest getLoanRequestById(int id) {
+        return loanDao.getLoanRequestById(id);
+    }
+
     //Đồng ý khoản vay
-    public void approvedLoanRequest(LoanRequest loanRequest, int idAccountChecking){
+    public void approvedLoanRequest(LoanRequest loanRequest, int idAccountReceived){
 
 
-        Account account = accountDao.getAccountById(idAccountChecking);
+        Account account = accountDao.getAccountById(idAccountReceived);
         List<Account> listAccountOfCustomer = accountDao.getAllAccountOfCustomerDao(loanRequest.getCustomerOwner().getUserId());
         if (account == null) {
             throw new RuntimeException("Không tìm thấy tài khoản thanh toán!");
@@ -65,7 +68,7 @@ public class LoanService {
             throw new RuntimeException("Tài khoản đã chọn không có trong danh sách tài khoản của khách hàng!");
 
         }
-        //cập nhajat trạng thái
+        //cập nhjat trạng thái
         loanDao.updateStatusLoanRequest(loanRequest.getLoanRequestId(), "APPROVED");
         //mở tài khoản
         accountDao.addLoanAccount(loanRequest.getCustomerOwner().getUserId(), loanRequest.getRequestAmount(), loanRequest.getLoanTerm());
@@ -75,7 +78,7 @@ public class LoanService {
         //thực hiện cộng tiền
         checkingAccount.deposit(loanRequest.getRequestAmount());
         //lưu giao dịch
-        Transaction transaction = new Transaction(TransactionType.LOAN_DISBURSEMENT, loanRequest.getRequestAmount(), LocalDateTime.now(), idAccountChecking, null, "Nhận tiền từ tài khoản vay");
+        Transaction transaction = new Transaction(TransactionType.LOAN_DISBURSEMENT, loanRequest.getRequestAmount(), LocalDateTime.now(), idAccountReceived, null, "Nhận tiền từ tài khoản vay");
         transactionDao.addTransactionPlus(transaction);
 
         accountDao.updateBalance(account.getAccountId(), account.getBalance());
@@ -85,7 +88,7 @@ public class LoanService {
         loanDao.updateStatusLoanRequest(loanRequest.getLoanRequestId(), "REJECTED");
     }
     //tự động cập nhật tiền phải trả của vay mỗi tháng
-    public void autoUpdateMonthlyRequỉedPayment(){
+    public void autoUpdateMonthlyRequiredPayment(){
         List<LoanAccount> loanAccountList = accountDao.getAllLoanAccountActive();
         for(LoanAccount loanAccount : loanAccountList){
             //thực hiện cập nhật số tiền

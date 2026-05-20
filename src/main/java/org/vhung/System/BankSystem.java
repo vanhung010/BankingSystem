@@ -14,7 +14,7 @@ public class BankSystem {
 
 
     private static BankSystem instance;
-    private BankSystem() {
+    public BankSystem() {
     }
 
     public double getMinCheckingBalance() {

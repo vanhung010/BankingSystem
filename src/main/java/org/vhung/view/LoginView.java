@@ -4,7 +4,6 @@ import org.vhung.controller.LoginController;
 import org.vhung.enity.Customer;
 import org.vhung.enity.Staff;
 import org.vhung.enity.User;
-import org.vhung.service.AuthService;
 
 import java.util.Scanner;
 
@@ -32,7 +31,7 @@ public class LoginView {
                     if (user instanceof Customer) {
                         new CustomerView((Customer) user).run();
                     } else if (user instanceof Staff) {
-                        new StaffUI((Staff) user).run();
+                        new StaffView((Staff) user).run();
                     } else {
                         break;
                     }

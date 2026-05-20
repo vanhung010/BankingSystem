@@ -189,6 +189,7 @@ public class SystemDao {
             e.printStackTrace();
         }
     }
+
     public BankSystem getBankSystemConfig() {
         // Lấy Instance thay vì khởi tạo bằng new Do BankSystem của bạn là Singleton
         BankSystem bankSystem = BankSystem.getInstance();

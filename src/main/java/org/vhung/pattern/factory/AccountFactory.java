@@ -21,42 +21,28 @@ public class AccountFactory {
                 accountReturn.setOwner(customerOwner);
                 accountReturn.setCreatedAt(LocalDate.now());
               return accountReturn;
-
-
             case "SAVING":
                account = new SavingAccount();
                SavingAccount accountReturn1 = (SavingAccount) account;
-
-
-
                accountReturn1.setCustomerOwner(customerOwner);
                accountReturn1.setDepositDate(LocalDate.now());
-
                accountReturn1.setInterestStrategy(new TermInterestStrategy());
-
-
                 accountReturn1.setAccountStatus(AccountStatus.ACTIVE);
                 accountReturn1.setOwner(customerOwner);
                 accountReturn1.setCreatedAt(LocalDate.now());
 
                return accountReturn1;
-
-
             case "LOAN":
                account = new LoanAccount();
                LoanAccount accountReturn2 = (LoanAccount) account;
-
                 accountReturn2.setInterestStrategy(new LoanInterestStrategy());
-
                 double rate = systemDao.getInterestLoan();
                 accountReturn2.setInterestRate(accountReturn2.getInterestStrategy().calcInterest(accountReturn2.getPricipalAmount(), rate, accountReturn2.getLoanTerm()));
-
                 accountReturn2.setMonthlyRequiredPayment(0);
                 accountReturn2.setAccountStatus(AccountStatus.ACTIVE);
                 accountReturn2.setOwner(customerOwner);
                 accountReturn2.setCreatedAt(LocalDate.now());
-
-                return accountReturn2;
+                 return accountReturn2;
 
             default:
                 throw new RuntimeException("Loại tài khoản không hợp lệ!");

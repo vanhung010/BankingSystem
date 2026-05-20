@@ -1,53 +1,33 @@
 package org.vhung.view;
 
 import org.vhung.System.BankSystem;
-import org.vhung.dao.AccountDao;
-import org.vhung.dao.LoanDao;
-import org.vhung.dao.SystemDao;
-import org.vhung.dao.UserDao;
-import org.vhung.enity.Account;
+import org.vhung.controller.CustomerController;
+import org.vhung.controller.StaffController;
 import org.vhung.enity.Customer;
 import org.vhung.enity.LoanRequest;
 import org.vhung.enity.Staff;
-import org.vhung.service.AuthService;
-import org.vhung.service.InterestService;
-import org.vhung.service.LoanService;
-import org.vhung.service.SavingService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
-public class StaffUI {
+public class StaffView {
     private Scanner scanner;
-    private AuthService authService;
     private final Staff staff;
-    private final LoanService loanService;
-    private final LoanDao loanDao;
     private CustomerView customerUI;
-    private final AccountDao accountDao;
-    private final UserDao userDao;
-    private final SystemDao systemDao;
-    private final InterestService interestService;
-    private final SavingService savingService;
+    private StaffController staffController;
+    private CustomerController customerController;
 
-    public StaffUI(Staff staff) {
+    public StaffView(Staff staff) {
         scanner = new Scanner(System.in);
-        authService = new AuthService();
         this.staff = staff;
-        loanService = new LoanService();
-        this.loanDao = new LoanDao();
-        this.userDao = new UserDao();
-        this.accountDao = new AccountDao();
-        this.systemDao = new SystemDao();
-        this.interestService = new InterestService();
-        this.savingService = new SavingService();
-
+        this.staffController = new StaffController();
+        this.customerController = new CustomerController();
     }
     public void run(){
         while(true){
-            LocalDate currentDate = systemDao.getTimeSystem();
+            LocalDate currentDate = staffController.getSystemTime();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String formattedDate = currentDate.format(formatter);
             System.out.println("===================================================");
@@ -136,55 +116,43 @@ public class StaffUI {
 
             System.out.print("Nhập giá trị mới cần cập nhật (Nhập số thập phân, vd: 0.05 cho 5% hoặc 50000 cho VNĐ): ");
             String valueStr = scanner.nextLine();
-            double value = 0;
-            try {
-                value = Double.parseDouble(valueStr);
-            } catch (NumberFormatException e) {
-                System.out.println("❌ Lỗi: Giá trị nhập vào không hợp lệ, vui lòng nhập số!");
-                continue;
-            }
+
 
             boolean isSuccess = false;
             switch (choice) {
                 case "1":
-                    isSuccess = systemDao.updateConfigValue("min_checking_balance", value);
+                    System.out.println(staffController.updateConfigValue("min_checking_balance", valueStr));
                     break;
                 case "2":
-                    isSuccess = systemDao.updateConfigValue("min_saving_deposit", value);
+                    System.out.println(staffController.updateConfigValue("min_saving_deposit", valueStr));
                     break;
                 case "3":
-                    isSuccess = systemDao.updateConfigValue("base_loan_interest_rate", value);
+                    System.out.println(staffController.updateConfigValue("base_loan_interest_rate", valueStr));
                     break;
                 case "4":
-                    isSuccess = systemDao.updateConfigValue("demand_interest_rate", value);
+                    System.out.println(staffController.updateConfigValue("demand_interest_rate", valueStr));
                     break;
                 case "5":
-                    isSuccess = systemDao.updateConfigValue("interest_rate_1M", value);
+                    System.out.println(staffController.updateConfigValue("interest_rate_1M", valueStr));
                     break;
                 case "6":
-                    isSuccess = systemDao.updateConfigValue("interest_rate_6M", value);
+                    System.out.println(staffController.updateConfigValue("interest_rate_6M", valueStr));
                     break;
                 case "7":
-                    isSuccess = systemDao.updateConfigValue("interest_rate_12M", value);
+                    System.out.println(staffController.updateConfigValue("interest_rate_12M", valueStr));
                     break;
                 default:
                     System.out.println("❌ Lựa chọn không hợp lệ!");
                     continue; // Bỏ qua cập nhật nếu chọn sai
             }
 
-            if (isSuccess) {
-                System.out.println("✅ Cập nhật thành công!");
-                // Cập nhật lại đối tượng Singleton trên RAM để đồng bộ với DB
-                displayBankSettings();
-            } else {
-                System.out.println("❌ Cập nhật thất bại, vui lòng kiểm tra lại hệ thống.");
-            }
+            displayBankSettings();
         }
     }
 
         public void displayBankSettings() {
             // Lấy dữ liệu cấu hình thông qua SystemDao (Sử dụng hàm bạn mới viết ở bước trước)
-            BankSystem settings = systemDao.getBankSystemConfig();
+            BankSystem settings = staffController.getBankSystemConfig();
 
             if (settings == null) {
                 System.out.println("❌ Lỗi: Không thể tải thông số cấu hình ngân hàng.");
@@ -227,23 +195,20 @@ public class StaffUI {
         System.out.println("2. Khóa tài khoản");
         System.out.println("3. Đóng tài khoản");
        String choice = scanner.nextLine();
-       int idAccount = 0;
-       try{
-           idAccount = Integer.parseInt(idAccountString);
-       }
-       catch (NumberFormatException e){
-           System.out.println("Vui lòng nhập số");
-       }
 
-       Account account =accountDao.getAccountById(idAccount);
+
+
        if(choice.equals("1")){
-           accountDao.updateStatusAccount(account, "ACTIVE");
+        String mess = staffController.updateStatusAccount(idAccountString, "ACTIVE");
+           System.out.println(mess);
        }
        else if(choice.equals("2")){
-           accountDao.updateStatusAccount(account, "LOCKED");
+           String mess = staffController.updateStatusAccount(idAccountString, "LOCKED");
+           System.out.println(mess);
        }
        else if(choice.equals("3")){
-           accountDao.updateStatusAccount(account, "CLOSED");
+           String mess = staffController.updateStatusAccount(idAccountString, "CLOSED");
+           System.out.println(mess);
        }
 
 
@@ -253,14 +218,8 @@ public class StaffUI {
         System.out.println("Nhập id khách hàng cần tra cứu");
         String idCustomerString = scanner.nextLine();
 
-        int idCustomer = 0;
-        try{
-            idCustomer = Integer.parseInt(idCustomerString);
-        }
-        catch (NumberFormatException e){
-            e.printStackTrace();
-        }
-        Customer customer = userDao.getCustomerById(idCustomer);
+       Customer customer = staffController.getCustomerById(idCustomerString);
+
         if (customer == null) {
             System.out.println("❌ Lỗi: Không có thông tin khách hàng để hiển thị.");
             return;
@@ -287,7 +246,7 @@ public class StaffUI {
     public void handleCheckAllLoanRequestPending(){
 
         try{
-            List<LoanRequest> loanRequestList = loanService.getALlLoanRequestPending();
+            List<LoanRequest> loanRequestList = staffController.getAllLoanRequestPending();
             System.out.println("\n===============================================================================");
             System.out.println("                 DANH SÁCH YÊU CẦU VAY CHỜ DUYỆT (PENDING)");
             System.out.println("===============================================================================");
@@ -298,10 +257,10 @@ public class StaffUI {
                 System.out.printf("%-5d | %-10d | %,18.0f | %-14d | %-20s\n",
 //                        req.getRequestId(),
                         req.getLoanRequestId(),
-                        req.getCustomerOwner().getUserId(), // Hoặc getCustomer().getUserId() tùy cách bạn map dữ liệu
+                        req.getCustomerOwner().getUserId(),
                         req.getRequestAmount(),
                         req.getLoanTerm(),
-                        req.getRequestDate().toString()); // Chuyển ngày tháng sang chuỗi
+                        req.getRequestDate().toString());
             }
             System.out.println("===============================================================================");
         }
@@ -316,15 +275,8 @@ public class StaffUI {
         handleCheckAllLoanRequestPending(); //show danh sách những khoản vay đang chờ xét duyệt
         System.out.println("Nhập id của khoản vay muốn xử lí");
         String idLoanRequestString = scanner.nextLine();
-        int idLoanRequest = -1;
-        try {
-            idLoanRequest = Integer.parseInt(idLoanRequestString);
-        }
-        catch (NumberFormatException e){
-            e.printStackTrace();
-            return;
-        }
-        LoanRequest loanRequest = loanDao.getLoanRequestById(idLoanRequest);
+
+        LoanRequest loanRequest = staffController.getLoanRequestById(idLoanRequestString);
 
         if(loanRequest == null){
             System.out.println("Không tìm thấy khoản vay");
@@ -335,32 +287,18 @@ public class StaffUI {
         System.out.println("2. Từ chối.");
         String choice = scanner.nextLine();
         if(choice.equals("1")){
-            customerUI = new CustomerView(userDao.getCustomerById(loanRequest.getCustomerOwner().getUserId()));
+            Customer customer = staffController.getCustomerById(String.valueOf(loanRequest.getCustomerOwner().getUserId()));
+            customerUI = new CustomerView(customer);
+            // using directly customerUI method is fine or we should have an option, but keep logic
             customerUI.checkAllAccount(loanRequest.getCustomerOwner().getUserId());
             System.out.println("Nhập id tài khoản thanh toán nhận tiền");
             String idAccountString = scanner.nextLine();
-            int idAccount = -1;
-            try{
-                idAccount = Integer.parseInt(idAccountString);
-            }
-            catch (NumberFormatException e){
-                e.printStackTrace();
-                return;
-            }
 
-           try{
-               loanService.approvedLoanRequest(loanRequest, idAccount);
-           }
-           catch (RuntimeException e){
-               System.out.println(e.getMessage());
-               return;
-           }
-            System.out.println("Phê duyệt khoản vay thành công");
+            staffController.approveLoanRequest(loanRequest, idAccountString);
 
         }
         else if(choice.equals("2")){
-            loanService.rejectLoanRequest(loanRequest);
-            System.out.println("Từ chối khoản vay thành công");
+            staffController.rejectLoanRequest(loanRequest);
         }
         else {
             System.out.println("Vui lòng chọn đúng lựa chọn");
@@ -369,72 +307,18 @@ public class StaffUI {
     }
 
     public void handleUpdateTime(){
-
-        //cập nhật thời gian hệ thống lên 1 tháng
-        systemDao.updateDateSystemPlus1Month();
-        //cập nhật bên tiết kiệm
-        savingService.checkSavingAccountExpried();
-        //kiểm tra xem tháng trước có tài khoản vay nào chưa trả đủ không, nếu chưa trả đủ thì khóa tài khoản
-        loanService.lockLoanAccountMonthly();
-        //Hiển thị thông báo cho hệ thống
-        loanService.checkLockLoanAccount();
-        //cộng tiền lãi vào số nợ phải trả
-        interestService.autoUpdateInterestLoanMonthly();
-        //cập nhật số nợ phải trả mỗi tháng
-            loanService.autoUpdateMonthlyRequỉedPayment();
-       //cập nhật số nợ đã trả mỗi tháng về 0
-       loanService.updateAmountPaidMonthly();
-       //cập nhajat ngày trả nợ tất cả tài khoản
-        loanService.updateDatePaidMonthly();
-        //cập nhất số nợ phải trả
-        loanService.updateAmountMustPaidMonthly();
+        staffController.handleUpdateTime();
     }
     //xử lí cộng ngày
     public void handlePlusDaySystem(){
         System.out.println("Nhập số ngày muốn cộng: ");
         String dayString = scanner.nextLine();
-        int day =0;
-        try{
-            day = Integer.parseInt(dayString);
-        }
-        catch (NumberFormatException e){
-            e.printStackTrace();
-        }
-        try{
-            if(day + systemDao.getTimeSystem().getDayOfMonth() > 30){
-                throw new RuntimeException("Vui lòng chọn chức năng cộng tháng để sang tháng mới!");
-            }
-            else {
-                systemDao.plusDaySystem(day);
-                savingService.checkSavingAccountExpried();
-            }
-        }
-        catch (RuntimeException e){
-            System.out.println(e.getMessage());
-        }
+        staffController.handPlusDaySystem(dayString);
     }
     //xử lí trừ ngày
     public void handleMinusDaySystem(){
         System.out.println("Nhập số ngày muốn trừ: ");
         String dayString = scanner.nextLine();
-        int day =0;
-        try{
-            day = Integer.parseInt(dayString);
-        }
-        catch (NumberFormatException e){
-            e.printStackTrace();
-        }
-        try{
-            if(systemDao.getTimeSystem().getDayOfMonth() - day < 0){
-                throw new RuntimeException("Không thể thực hiện, vui lòng chọn số ngày nhỏ hơn");
-            }
-            else {
-                systemDao.minusDaySystem(day);
-            }
-        }
-        catch (RuntimeException e){
-            System.out.println(e.getMessage());
-        }
+        staffController.handMinusDaySystem(dayString);
     }
-    }
-
+}

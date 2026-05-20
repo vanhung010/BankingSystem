@@ -3,6 +3,7 @@ package org.vhung.service;
 import org.vhung.dao.AccountDao;
 import org.vhung.dao.SystemDao;
 import org.vhung.dao.TransactionDao;
+import org.vhung.dao.UserDao;
 import org.vhung.enity.*;
 import org.vhung.enity.enums.TransactionType;
 
@@ -14,6 +15,7 @@ public class AccountService {
     private AccountDao accountDao;
     private TransactionDao transactionDao;
     private SystemDao systemDao;
+    private UserDao userDao = new UserDao();
 
     public AccountService() {
         accountDao = new AccountDao();
@@ -69,4 +71,14 @@ public class AccountService {
     public void updateStatusAccount(Account account, String status) {
         accountDao.updateStatusAccount(account, status);
     }
+
+    public Customer getCustomerbyId(int idCus){
+        Customer customer = userDao.getCustomerById(idCus);
+        if(customer == null){
+            throw new RuntimeException("Không tìm thấy khách hàng");
+        }
+        return customer;
+    }
+
+
 }

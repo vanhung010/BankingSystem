@@ -112,30 +112,29 @@ public class UserDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
-                //chia role
-                if(resultSet.getString("role").equals("CUSTOMER") && resultSet.getBoolean("is_active") == true){
-                    //nếu là khách hàng
+                if (!resultSet.getBoolean("is_active")) {
+                    throw new RuntimeException("Tài khoản đã bị khóa hoặc không hoạt động");
+                }
+                String role = resultSet.getString("role");
+                if ("CUSTOMER".equals(role)) {
                     Customer customer = new Customer();
-                    //set thuộc tính
                     customer.setUserId(resultSet.getInt("user_id"));
                     customer.setUserName(resultSet.getString("user_name"));
                     customer.setPassword(resultSet.getString("password"));
                     customer.setFullName(resultSet.getString("fullname"));
                     customer.setEmail(resultSet.getString("email"));
                     customer.setMonthlyIncome(resultSet.getDouble("monthly_income"));
-
                     return customer;
-                }
-                else{
+                } else if ("STAFF".equals(role)) {
                     Staff staff = new Staff();
-
                     staff.setUserId(resultSet.getInt("user_id"));
                     staff.setUserName(resultSet.getString("user_name"));
                     staff.setPassword(resultSet.getString("password"));
                     staff.setFullName(resultSet.getString("fullname"));
                     staff.setEmail(resultSet.getString("email"));
-
                     return staff;
+                } else {
+                    throw new RuntimeException("Quyền truy cập không hợp lệ");
                 }
             }
             else {
@@ -161,7 +160,7 @@ public class UserDao {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Nếu bạn muốn chặn account bị khóa thì check is_active ở đây
+
 
 
                     // Nếu muốn chắc chắn đúng role CUSTOMER:

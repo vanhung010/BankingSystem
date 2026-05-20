@@ -12,6 +12,7 @@ public abstract class Account {
     private AccountStatus accountStatus;
     private Customer owner;
     private LocalDate createdAt;
+    private InterestStrategy interestStrategy;
 
     public LocalDate getCreatedAt() {
         return createdAt;
@@ -21,7 +22,7 @@ public abstract class Account {
         this.createdAt = createdAt;
     }
 
-    private InterestStrategy interestStrategy;
+
 
     public int getAccountId() {
         return accountId;

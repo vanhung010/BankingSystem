@@ -29,7 +29,7 @@ public class InterestService {
             //số tiền nợ ban đầu
             double balanceBefore = loanAccount.getBalance();
             //thực hiện cộng tiền
-            loanAccount.setBalance(balanceBefore + interestLoan);
+            loanAccount.setBalance(balanceBefore + interestLoanAccountInMonth);
             //cập nật số dư
             accountDao.updateBalance(loanAccount.getAccountId(), loanAccount.getBalance());
             //lưu giao dịch
